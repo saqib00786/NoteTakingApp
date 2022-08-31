@@ -1,6 +1,6 @@
 import { Text, View, StyleSheet, TouchableOpacity, Image, ImageBackground, FlatList, RefreshControl ,ActivityIndicator} from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { ADD_BTN_IMG, BACKGROUND_COLOR, BACKGROUND_IMG, COLOR_DARK_GREEN, COLOR_EQUA_GREEN, COLOR_GREEN, COLOR_LITE_GREEN, DELETE_ICON } from '../../../res/drawable'
+import { ADD_BTN_IMG, BACKGROUND_COLOR, BACKGROUND_IMG, COLOR_DARK_GREEN, COLOR_EQUA_GREEN, COLOR_GREEN, COLOR_LITE_GREEN, COLOR_WHITE, DELETE_ICON } from '../../../res/drawable'
 import ImageBtn from '../../components/ImageBtn'
 import { useEffect, useState } from 'react'
 
@@ -25,9 +25,9 @@ const Main = (props) => {
     }
 
 
-    const onRemoveItem = async (title) => {
+    const onRemoveItem = async (noteTitle) => {
         try {
-            await AsyncStorage.removeItem(title)
+            await AsyncStorage.removeItem(noteTitle)
         } catch (e) {
             console.log(e)
         }
@@ -44,19 +44,21 @@ const Main = (props) => {
                 numColumns={3}
                 data={data}
                 renderItem={({ item }) => {
-                    var title = item[0]
+                    var noteTitle = item[0]
                     var description = item[1]
                     return (
 
-                        <TouchableOpacity style={styles.noteCard}>
+                        <TouchableOpacity
+                        onPress={() =>{ props.navigation.replace('CreateNote',{noteTitle : item[0]})}}
+                        style={styles.noteCard}>
                             <View style={styles.titleContainer}>
-                                <Text style={styles.titleWrapper}>{title}</Text>
+                                <Text style={styles.titleWrapper}>{noteTitle}</Text>
                             </View>
 
                             <Text numberOfLines={6} style={styles.descriptionContainer}> {description}</Text>
 
                             <TouchableOpacity
-                                onPress={() => onRemoveItem(title)}
+                                onPress={() => onRemoveItem(noteTitle)}
                                 style={styles.delBtnContainer}>
                                 <Image
                                     source={DELETE_ICON}
@@ -77,7 +79,7 @@ const Main = (props) => {
             <View style={styles.AddBtnContainer}>
                 <ImageBtn
                     source={ADD_BTN_IMG}
-                    onPress={() => props.navigation.navigate('CreateNote')}
+                    onPress={() => props.navigation.replace('CreateNote',{noteTitle : null})}
                 />
             </View>
         </View>
@@ -121,12 +123,14 @@ const styles = StyleSheet.create({
     },
     titleContainer: {
         height: 24,
-        backgroundColor: COLOR_EQUA_GREEN
+        backgroundColor: COLOR_GREEN,
+        borderTopLeftRadius : 8,
+        borderTopEndRadius : 8
     },
     titleWrapper: {
         fontSize: 12,
         fontWeight: 'bold',
-        color: COLOR_DARK_GREEN,
+        color: COLOR_WHITE,
         padding: 4
     },
     descriptionContainer: {

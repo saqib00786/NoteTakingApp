@@ -7,16 +7,33 @@ const CreateNote = (props) => {
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
 
+    let {noteTitle} = props.route.params
+
+    useEffect(() =>{
+        loadUserData()
+    },[])
+
+    const loadUserData = async() =>{
+        if(noteTitle){
+            let description = await AsyncStorage.getItem(noteTitle)
+            setTitle(noteTitle)
+            setDescription(description)
+
+            console.log(noteTitle)
+            console.log(description)
+        }
+    }
+
 
     const onPress = async () => {
         if (title != '' && description != '') {
             try {
                 let value = await AsyncStorage.getItem(title)
-                if (value) {
+                if (value && !noteTitle) {
                     alert('Title already Exists')
                 } else {
                     await AsyncStorage.setItem(title, description)
-                    props.navigation.goBack()
+                    props.navigation.replace('Main')
                 }
             }
             catch (e) {
@@ -35,6 +52,7 @@ const CreateNote = (props) => {
                 <TextInput
                     style={{ padding: 20, color: COLOR_DARK_GREEN }}
                     placeholder={'Enter the Title here'}
+                    value = {title}
                     placeholderTextColor={COLOR_LITE_GREEN}
                     onChangeText={(t) => setTitle(t)}
                 />
@@ -45,6 +63,7 @@ const CreateNote = (props) => {
                 <TextInput
                     style={{ margin: 20, color: COLOR_DARK_GREEN }}
                     placeholder={'Enter Descriptin here'}
+                    value = {description}
                     placeholderTextColor={COLOR_LITE_GREEN}
                     multiline={true}
                     onChangeText={(t) => setDescription(t)}
@@ -56,7 +75,7 @@ const CreateNote = (props) => {
                 style={styles.btn}
                 onPress={() => onPress()}
             >
-                <Text style={styles.textWrapper}>Add Note</Text>
+                <Text style={styles.textWrapper}>{noteTitle ? 'UpdateNote':'Add Note'}</Text>
             </TouchableOpacity>
 
         </View>
