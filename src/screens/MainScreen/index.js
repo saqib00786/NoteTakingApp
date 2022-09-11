@@ -1,12 +1,17 @@
-import { Text, View, StyleSheet, TouchableOpacity, Image, ImageBackground, FlatList, RefreshControl ,ActivityIndicator} from 'react-native'
+import { Text, View, StyleSheet, TouchableOpacity, Image, FlatList, RefreshControl, ActivityIndicator } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { ADD_BTN_IMG, BACKGROUND_COLOR, BACKGROUND_IMG, COLOR_DARK_GREEN, COLOR_EQUA_GREEN, COLOR_GREEN, COLOR_LITE_GREEN, COLOR_WHITE, DELETE_ICON } from '../../../res/drawable'
 import ImageBtn from '../../components/ImageBtn'
 import { useEffect, useState } from 'react'
+import App from '../../../api/firebase'
 
 const Main = (props) => {
     const [data, setData] = useState([])
     const [refreshing, setRefreshing] = useState(true);
+    const {email} = props.route.params
+    
+    
+
 
     useEffect(() => {
         loadAllNotes()
@@ -37,50 +42,55 @@ const Main = (props) => {
 
 
     return (
-        <View style={[styles.container]}>
-            {refreshing ? <ActivityIndicator /> : null}
-            <FlatList
-                style={styles.flatListContainer}
-                numColumns={3}
-                data={data}
-                renderItem={({ item }) => {
-                    var noteTitle = item[0]
-                    var description = item[1]
-                    return (
-
-                        <TouchableOpacity
-                        onPress={() =>{ props.navigation.replace('CreateNote',{noteTitle : item[0]})}}
-                        style={styles.noteCard}>
-                            <View style={styles.titleContainer}>
-                                <Text style={styles.titleWrapper}>{noteTitle}</Text>
-                            </View>
-
-                            <Text numberOfLines={6} style={styles.descriptionContainer}> {description}</Text>
+        <View style={{ flex: 1 }}>
+            <View style={[styles.container]}>
+                {refreshing ? <ActivityIndicator /> : null}
+                <FlatList
+                    style={styles.flatListContainer}
+                    numColumns={3}
+                    data={data}
+                    renderItem={({ item }) => {
+                        var noteTitle = item[0]
+                        var description = item[1]
+                        return (
 
                             <TouchableOpacity
-                                onPress={() => onRemoveItem(noteTitle)}
-                                style={styles.delBtnContainer}>
-                                <Image
-                                    source={DELETE_ICON}
-                                    style={{ width: 30, height: 30 }}
-                                />
+                                onPress={() => { props.navigation.navigate('CreateNote', { noteTitle: item[0],email }) }}
+                                style={styles.noteCard}>
+                                <View style={styles.titleContainer}>
+                                    <Text style={styles.titleWrapper}>{noteTitle}</Text>
+                                </View>
+
+                                <Text numberOfLines={6} style={styles.descriptionContainer}> {description}</Text>
+
+                                <TouchableOpacity
+                                    onPress={() => onRemoveItem(noteTitle)}
+                                    style={styles.delBtnContainer}>
+                                    <Image
+                                        source={DELETE_ICON}
+                                        style={{ width: 30, height: 30 }}
+                                    />
+                                </TouchableOpacity>
                             </TouchableOpacity>
-                        </TouchableOpacity>
-                    )
-                }}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing}
-                        onRefresh={loadAllNotes}
+                        )
+                    }}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing}
+                            onRefresh={loadAllNotes}
 
-                    />
-                }
-            />
-
-            <View style={styles.AddBtnContainer}>
-                <ImageBtn
-                    source={ADD_BTN_IMG}
-                    onPress={() => props.navigation.replace('CreateNote',{noteTitle : null})}
+                        />
+                    }
                 />
+
+                <View style={styles.AddBtnContainer}>
+                    <ImageBtn
+                        source={ADD_BTN_IMG}
+                        onPress={() => props.navigation.navigate('CreateNote', { noteTitle: null,email })}
+                    />
+                </View>
+            </View>
+            <View style={{ flex: .1, alignSelf : 'center' }}>
+            
             </View>
         </View>
 
@@ -90,10 +100,10 @@ const Main = (props) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 0.9,
         alignItems: 'center',
         justifyContent: 'center',
-        margin: 8
+        margin: 8,
     },
     flatListContainer: {
         flex: 1,
@@ -103,8 +113,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 0,
         bottom: 0,
-        marginRight: 25,
-        marginBottom: 25,
+        marginRight: 12,
+        marginBottom: 8,
     },
     noteCard: {
         backgroundColor: 'white',
@@ -124,8 +134,8 @@ const styles = StyleSheet.create({
     titleContainer: {
         height: 24,
         backgroundColor: COLOR_GREEN,
-        borderTopLeftRadius : 8,
-        borderTopEndRadius : 8
+        borderTopLeftRadius: 8,
+        borderTopEndRadius: 8
     },
     titleWrapper: {
         fontSize: 12,
