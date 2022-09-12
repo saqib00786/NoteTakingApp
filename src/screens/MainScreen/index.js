@@ -4,30 +4,43 @@ import { ADD_BTN_IMG, BACKGROUND_COLOR, BACKGROUND_IMG, COLOR_DARK_GREEN, COLOR_
 import ImageBtn from '../../components/ImageBtn'
 import { useEffect, useState } from 'react'
 import App from '../../../api/firebase'
+import { getFirestore} from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 
 const Main = (props) => {
     const [data, setData] = useState([])
     const [refreshing, setRefreshing] = useState(true);
-    const {email} = props.route.params
-    
-    
+    const { email } = props.route.params
+    const db = getFirestore(App)
 
+
+    const LoadData = async () => {
+        let Keys=[]
+        const querySnapshot = await getDocs(collection(db, email));
+        querySnapshot.forEach((doc) => {
+            console.log(doc.id)
+            Keys.push(doc.data())
+        });
+        setData(Keys)
+        setRefreshing(false)
+    }
 
     useEffect(() => {
-        loadAllNotes()
+        LoadData()
+        //loadAllNotes()
     }, [])
 
-    const loadAllNotes = async () => {
-        try {
-            let Keys = await AsyncStorage.getAllKeys()
-            //const items = JSON.parse(await AsyncStorage.multiGet(Keys))
-            const items = await AsyncStorage.multiGet(Keys)
-            setData(items)
-            setRefreshing(false)
-        } catch (e) {
-            console.log(e)
-        }
-    }
+    // const loadAllNotes = async () => {
+    //     try {
+    //         let Keys = await AsyncStorage.getAllKeys()
+    //         //const items = JSON.parse(await AsyncStorage.multiGet(Keys))
+    //         const items = await AsyncStorage.multiGet(Keys)
+    //         setData(items)
+    //         setRefreshing(false)
+    //     } catch (e) {
+    //         console.log(e)
+    //     }
+    // }
 
 
     const onRemoveItem = async (noteTitle) => {
@@ -50,12 +63,12 @@ const Main = (props) => {
                     numColumns={3}
                     data={data}
                     renderItem={({ item }) => {
-                        var noteTitle = item[0]
-                        var description = item[1]
+                        var noteTitle = item.title
+                        var description = item.description
                         return (
 
                             <TouchableOpacity
-                                onPress={() => { props.navigation.navigate('CreateNote', { noteTitle: item[0],email }) }}
+                                onPress={() => { props.navigation.navigate('CreateNote', { noteTitle: item[0], email }) }}
                                 style={styles.noteCard}>
                                 <View style={styles.titleContainer}>
                                     <Text style={styles.titleWrapper}>{noteTitle}</Text>
@@ -76,7 +89,7 @@ const Main = (props) => {
                     }}
                     refreshControl={
                         <RefreshControl refreshing={refreshing}
-                            onRefresh={loadAllNotes}
+                            onRefresh={LoadData}
 
                         />
                     }
@@ -85,12 +98,12 @@ const Main = (props) => {
                 <View style={styles.AddBtnContainer}>
                     <ImageBtn
                         source={ADD_BTN_IMG}
-                        onPress={() => props.navigation.navigate('CreateNote', { noteTitle: null,email })}
+                        onPress={() => props.navigation.navigate('CreateNote', { noteTitle: null, email })}
                     />
                 </View>
             </View>
-            <View style={{ flex: .1, alignSelf : 'center' }}>
-            
+            <View style={{ flex: .1, alignSelf: 'center' }}>
+
             </View>
         </View>
 

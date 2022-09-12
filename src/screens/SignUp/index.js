@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image } from 'reac
 import { COLOR_DARK_GREEN, COLOR_EQUA_GREEN, COLOR_LITE_GREEN, COLOR_WHITE, BACKGROUND_IMG } from '../../../res/drawable'
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { } from 'firebase/firestore'
-import { collection, addDoc, doc, setDoc,getFirestore } from "firebase/firestore";
+import { collection, addDoc, doc, setDoc, getFirestore } from "firebase/firestore";
 import App from '../../../api/firebase'
 import { COLLECTION_USER } from '../../../res/strings';
 
@@ -20,9 +20,7 @@ const SignUp = (props) => {
         const auth = getAuth();
         if (email.includes('@') && password) {
             try {
-                await addDoc(collection(db, email), {
-
-                });
+                await addDoc(collection(db, email));
 
                 let res = await createUserWithEmailAndPassword(auth, email, password)
                 alert("User Create Sucessfully")
@@ -49,7 +47,7 @@ const SignUp = (props) => {
 
             <View style={{ ...styles.card, height: 60, width: '100%' }}>
                 <TextInput
-                    style={{ padding: 20, color: COLOR_DARK_GREEN }}
+                    style={{ padding: 20, color: COLOR_DARK_GREEN, borderColor: 'gray', borderWidth: 0.7, borderRadius: 20 }}
                     placeholder={'Email'}
                     value={email}
                     onChangeText={(t) => setEmail(t)}
@@ -59,7 +57,7 @@ const SignUp = (props) => {
 
             <View style={{ ...styles.card, height: 60, width: '100%' }}>
                 <TextInput
-                    style={{ margin: 20, color: COLOR_DARK_GREEN }}
+                    style={{ padding: 20, color: COLOR_DARK_GREEN, borderColor: 'gray', borderWidth: 0.7, borderRadius: 20 }}
                     placeholder={'Password'}
                     value={password}
                     secureTextEntry={true}
@@ -130,7 +128,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignSelf: 'center',
         bottom: 0,
-        margin: 8
+        margin: 8,
+        borderColor : COLOR_DARK_GREEN,
+        borderWidth : 0.5,
     },
     textWrapper: {
         color: COLOR_DARK_GREEN,

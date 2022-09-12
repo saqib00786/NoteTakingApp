@@ -12,7 +12,7 @@ const Login = (props) => {
         try {
             let res = await signInWithEmailAndPassword(auth, email, password)
             alert("You Are Login Successfully")
-            props.navigation.navigate('Main',{email : email})
+            props.navigation.replace('Main', { email: email })
         } catch (error) {
             alert("SomeThing went Wrong")
         }
@@ -33,7 +33,7 @@ const Login = (props) => {
 
             <View style={{ ...styles.card, height: 60, width: '100%' }}>
                 <TextInput
-                    style={{ padding: 20, color: COLOR_DARK_GREEN }}
+                    style={{ padding: 20, color: COLOR_DARK_GREEN, borderColor: 'gray', borderWidth: 0.7, borderRadius: 20 }}
                     placeholder={'Email'}
                     value={email}
                     onChangeText={(t) => setEmail(t)}
@@ -43,7 +43,7 @@ const Login = (props) => {
 
             <View style={{ ...styles.card, height: 60, width: '100%' }}>
                 <TextInput
-                    style={{ margin: 20, color: COLOR_DARK_GREEN }}
+                    style={{ padding: 20, color: COLOR_DARK_GREEN, borderColor: 'gray', borderWidth: 0.7, borderRadius: 20 }}
                     placeholder={'Password'}
                     value={password}
                     secureTextEntry={true}
@@ -111,7 +111,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignSelf: 'center',
         bottom: 0,
-        margin: 8
+        margin: 8,
+        borderColor : COLOR_DARK_GREEN,
+        borderWidth : 0.5,
     },
     textWrapper: {
         color: COLOR_DARK_GREEN,

@@ -13,8 +13,6 @@ const CreateNote = (props) => {
     const [description, setDescription] = useState('')
     const {email} = props.route.params
 
-    let { noteTitle } = props.route.params
-
     useEffect(() => {
         loadUserData()
     }, [])
