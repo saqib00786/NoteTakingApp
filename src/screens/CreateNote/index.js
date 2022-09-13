@@ -1,48 +1,50 @@
 import { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native'
 import { COLOR_DARK_GREEN, COLOR_EQUA_GREEN, COLOR_LITE_GREEN, COLOR_WHITE } from '../../../res/drawable'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import App from "../../../api/firebase"
-import { getFirestore, collection, addDoc,setDoc,doc} from "firebase/firestore";
+import { getFirestore, collection, addDoc, setDoc, doc } from "firebase/firestore";
 import { getAuth } from 'firebase/auth'
 
 const CreateNote = (props) => {
     const db = getFirestore(App)
     const auth = getAuth()
-    const [title, setTitle] = useState('')
-    const [description, setDescription] = useState('')
-    const {email} = props.route.params
+    const [progress, setProgress] = useState()
+    const { email, title: noteTitle, description: noteDescription } = props.route.params
+    const [title, setTitle] = useState(noteTitle)
+    const [description, setDescription] = useState(noteDescription)
+
 
     useEffect(() => {
-        loadUserData()
+        // loadUserData()
     }, [])
 
-    const loadUserData = async () => {
-        if (noteTitle) {
-            let description = await AsyncStorage.getItem(noteTitle)
-            setTitle(noteTitle)
-            setDescription(description)
-            console.log(noteTitle)
-            console.log(description)
-        }
-    }
+    // const loadUserData = async () => {
+    //     if (noteTitle) {
+    //         let description = await AsyncStorage.getItem(noteTitle)
+    //         setTitle(noteTitle)
+    //         setDescription(description)
+    //         console.log(noteTitle)
+    //         console.log(description)
+    //     }
+    // }
+
 
     const onPress = async () => {
         if (title != '' && description != '') {
 
             try {
+                let docRef = await setDoc(doc(db, email, title), {
+                    title: title,
+                    description: description,
+                });
 
-                    let docRef = await setDoc(doc(db, email,title), {
-                        title: title,
-                        description: description
-                    });
+                // await setDoc(doc(db,"Notes",title),{
+                //     title,
+                //     description
+                // })
 
-                    // await setDoc(doc(db,"Notes",title),{
-                    //     title,
-                    //     description
-                    // })
-
-                    props.navigation.goBack()
+                props.navigation.goBack()
 
             }
             catch (e) {
@@ -63,6 +65,7 @@ const CreateNote = (props) => {
                     style={{ padding: 20, color: COLOR_DARK_GREEN }}
                     placeholder={'Enter the Title here'}
                     value={title}
+                    editable={noteTitle ? false : true}
                     placeholderTextColor={COLOR_LITE_GREEN}
                     onChangeText={(t) => setTitle(t)}
                 />

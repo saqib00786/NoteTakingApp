@@ -4,31 +4,56 @@ import { ADD_BTN_IMG, BACKGROUND_COLOR, BACKGROUND_IMG, COLOR_DARK_GREEN, COLOR_
 import ImageBtn from '../../components/ImageBtn'
 import { useEffect, useState } from 'react'
 import App from '../../../api/firebase'
-import { getFirestore} from "firebase/firestore";
-import { collection, getDocs } from "firebase/firestore";
+import AnimatedLottieView from 'lottie-react-native'
+import { getFirestore, collection, getDocs, query, onSnapshot, doc, deleteDoc } from "firebase/firestore";
 
 const Main = (props) => {
     const [data, setData] = useState([])
     const [refreshing, setRefreshing] = useState(true);
     const { email } = props.route.params
     const db = getFirestore(App)
+    let Keys = []
 
+
+   
 
     const LoadData = async () => {
-        let Keys=[]
-        const querySnapshot = await getDocs(collection(db, email));
-        querySnapshot.forEach((doc) => {
-            console.log(doc.id)
-            Keys.push(doc.data())
-        });
-        setData(Keys)
+        // const querySnapshot = await getDocs(collection(db, email));
+        // querySnapshot.forEach((doc) => {
+        //     console.log(doc.id)
+        //     Keys.push(doc.data())
+        // });
+        // setData(Keys)
+        // setRefreshing(false)
+        const q = query(collection(db, email))
+        try {
+            // let Keys = []
+
+            const subscribe = onSnapshot(q, (querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    console.log(doc.data());
+                    Keys.push(doc.data());
+                });
+                setData(Keys)
+                Keys = []
+            });
+        } catch (error) {
+            console.log(error.message)
+        }
+
         setRefreshing(false)
+        setLoading(false)
+        return () => subscribe
     }
 
     useEffect(() => {
         LoadData()
-        //loadAllNotes()
+        onRemoveItem()
     }, [])
+
+    const onRemoveItem = async (title) => {
+        await deleteDoc(doc(db, email, title))
+    }
 
     // const loadAllNotes = async () => {
     //     try {
@@ -43,13 +68,13 @@ const Main = (props) => {
     // }
 
 
-    const onRemoveItem = async (noteTitle) => {
-        try {
-            await AsyncStorage.removeItem(noteTitle)
-        } catch (e) {
-            console.log(e)
-        }
-    }
+    // const onRemoveItem = async (noteTitle) => {
+    //     try {
+    //         await AsyncStorage.removeItem(noteTitle)
+    //     } catch (e) {
+    //         console.log(e)
+    //     }
+    // }
 
 
 
@@ -63,21 +88,19 @@ const Main = (props) => {
                     numColumns={3}
                     data={data}
                     renderItem={({ item }) => {
-                        var noteTitle = item.title
-                        var description = item.description
                         return (
 
                             <TouchableOpacity
-                                onPress={() => { props.navigation.navigate('CreateNote', { noteTitle: item[0], email }) }}
+                                onPress={() => { props.navigation.navigate('CreateNote', { title: item.title, description: item.description, email }) }}
                                 style={styles.noteCard}>
                                 <View style={styles.titleContainer}>
-                                    <Text style={styles.titleWrapper}>{noteTitle}</Text>
+                                    <Text style={styles.titleWrapper}>{item.title}</Text>
                                 </View>
 
-                                <Text numberOfLines={6} style={styles.descriptionContainer}> {description}</Text>
+                                <Text numberOfLines={6} style={styles.descriptionContainer}> {item.description}</Text>
 
                                 <TouchableOpacity
-                                    onPress={() => onRemoveItem(noteTitle)}
+                                    onPress={() => onRemoveItem(item.title)}
                                     style={styles.delBtnContainer}>
                                     <Image
                                         source={DELETE_ICON}
@@ -98,7 +121,7 @@ const Main = (props) => {
                 <View style={styles.AddBtnContainer}>
                     <ImageBtn
                         source={ADD_BTN_IMG}
-                        onPress={() => props.navigation.navigate('CreateNote', { noteTitle: null, email })}
+                        onPress={() => props.navigation.navigate('CreateNote', { title: null, description: null, email })}
                     />
                 </View>
             </View>
